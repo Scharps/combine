@@ -6,9 +6,13 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy = { version = "0.5.0", features = ["dynamic"]}
-bevy_tilemap = { version = "0.4", features = ["serialize"]}
+bevy = { version = "0.5.0", features = ["dynamic"] }
+bevy_tilemap = { version = "0.4", features = ["serialize"] }
 
 [[example]]
 name = "tiles"
 path = "examples/maps/tiles.rs"
+
+[[example]]
+name = "keyboard"
+path = "examples/input/keyboard.rs"
