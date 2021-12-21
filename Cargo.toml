@@ -16,3 +16,7 @@ path = "examples/maps/tiles.rs"
 [[example]]
 name = "keyboard"
 path = "examples/input/keyboard.rs"
+
+[[example]]
+name = "move_camera"
+path = "examples/camera/move_camera.rs"
