@@ -1197,11 +1197,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3d7b894f5411737b7867f4827955924d7c254fc9f4d91a6aad6b097804b1018b"
 
 [[package]]
-name = "combine"
+name = "combeen"
 version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy_tilemap",
+ "serde",
 ]
 
 [[package]]
@@ -2187,7 +2188,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c6df18c2e3db7e453d3c6ac5b3e9d5182664d28788126d39b91f2d1e22b017ec"
 dependencies = [
  "cesu8",
- "combine 4.6.2",
+ "combine",
  "jni-sys",
  "log",
  "thiserror",

@@ -1,5 +1,5 @@
 [package]
-name = "combine"
+name = "combeen"
 version = "0.1.0"
 edition = "2018"
 
@@ -8,6 +8,7 @@ edition = "2018"
 [dependencies]
 bevy = { version = "0.5.0", features = ["dynamic"] }
 bevy_tilemap = { version = "0.4", features = ["serialize"] }
+serde = "1"
 
 [[example]]
 name = "tiles"
