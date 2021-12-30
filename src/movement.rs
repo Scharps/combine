@@ -35,7 +35,7 @@ pub fn player_movement(
         }
     }
     player_transform.translation += v.normalize_or_zero() * speed.0;
-    eprintln!(
+    println!(
         "player_transform.translation = {:?}",
         player_transform.translation
     );
