@@ -17,6 +17,7 @@ impl MovementEvent {
 }
 
 pub fn player_movement(
+    time: Res<Time>,
     mut event_reader: EventReader<PlayerMovementEvent>,
     mut query: Query<(&mut Transform, &Speed), With<Player>>,
 ) {
@@ -34,11 +35,7 @@ pub fn player_movement(
             },
         }
     }
-    player_transform.translation += v.normalize_or_zero() * speed.0;
-    println!(
-        "player_transform.translation = {:?}",
-        player_transform.translation
-    );
+    player_transform.translation += v.normalize_or_zero() * speed.0 * time.delta_seconds();
 }
 
 #[derive(Clone, Copy)]
