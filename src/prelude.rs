@@ -14,6 +14,11 @@ impl Plugin for PlayerPlugin {
         app.insert_resource(Keybinds::default())
             .add_event::<PlayerMovementEvent>()
             .add_system(player_input_capture.system().label("input"))
-            .add_system(player_movement.system().after("input"));
+            .add_system(
+                player_movement
+                    .system()
+                    .after("input")
+                    .label("player_movement"),
+            );
     }
 }
