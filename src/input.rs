@@ -1,4 +1,4 @@
-use bevy::{prelude::*, utils::HashMap};
+use bevy::{prelude::*, render::camera::Camera, utils::HashMap};
 
 use crate::movement::{Axis, Direction, PlayerMovementEvent};
 
@@ -53,6 +53,40 @@ pub fn player_input_capture(
     }
 }
 
+pub fn update_world_cursor(
+    mut world_cursor: ResMut<WorldCursor>,
+    windows: Res<Windows>,
+    query: Query<&Transform, With<Camera>>,
+) {
+    let main_camera_transform = query.single().expect("No camera found");
+
+    if let Some(window) = windows.get_primary() {
+        if let Some(position) = window.cursor_position() {
+            let size = Vec2::new(window.width(), window.height());
+            let p = position - size / 2.0;
+
+            let pos_wld = main_camera_transform.compute_matrix() * p.extend(0.0).extend(1.0);
+
+            world_cursor.0.x = pos_wld.x;
+            world_cursor.0.y = pos_wld.y;
+        }
+    }
+}
+
 pub enum InputEvent {
     PlayerMovement(PlayerMovementEvent),
+}
+
+pub struct WorldCursor(Vec2);
+
+impl Default for WorldCursor {
+    fn default() -> Self {
+        Self(Default::default())
+    }
+}
+
+impl WorldCursor {
+    pub fn position(&self) -> &Vec2 {
+        &self.0
+    }
 }
