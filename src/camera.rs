@@ -2,6 +2,9 @@ use bevy::prelude::*;
 
 const CAMERA_LOCK_RIGIDITY: f32 = 5.0;
 
+#[derive(Clone, Copy)]
+pub struct CameraTargetEvent;
+
 pub struct MainCamera;
 
 pub struct CameraTarget;

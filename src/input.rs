@@ -1,6 +1,9 @@
 use bevy::{prelude::*, render::camera::Camera, utils::HashMap};
 
-use crate::movement::{Axis, Direction, PlayerMovementEvent};
+use crate::{
+    camera::CameraTargetEvent,
+    movement::{Axis, Direction, PlayerMovementEvent},
+};
 
 pub struct Keybinds {
     keybinds: HashMap<KeyCode, InputEvent>,
@@ -25,6 +28,10 @@ impl Default for Keybinds {
             KeyCode::D,
             InputEvent::PlayerMovement(PlayerMovementEvent::new(Axis::X, Direction::Positive)),
         );
+        map.insert(
+            KeyCode::C,
+            InputEvent::SwitchCameraTarget(CameraTargetEvent),
+        );
         Self { keybinds: map }
     }
 }
@@ -43,11 +50,15 @@ pub fn player_input_capture(
     keybinds: Res<Keybinds>,
     keyboard_input: Res<Input<KeyCode>>,
     mut movement_event_writer: EventWriter<PlayerMovementEvent>,
+    mut camera_target_event_writer: EventWriter<CameraTargetEvent>,
 ) {
     for pressed_key in keyboard_input.get_pressed() {
         if let Some(input_event) = keybinds.get_action(pressed_key) {
             match input_event {
                 InputEvent::PlayerMovement(move_event) => movement_event_writer.send(*move_event),
+                InputEvent::SwitchCameraTarget(target_event) => {
+                    camera_target_event_writer.send(*target_event)
+                }
             }
         }
     }
@@ -75,6 +86,7 @@ pub fn update_world_cursor(
 
 pub enum InputEvent {
     PlayerMovement(PlayerMovementEvent),
+    SwitchCameraTarget(CameraTargetEvent),
 }
 
 pub struct WorldCursor(Vec2);
