@@ -23,7 +23,13 @@ pub fn set_mouse_over(
 ) {
     for (entity, transform, collider) in query.iter() {
         if collider.contains_point(&transform.translation.truncate(), world_cursor.position()) {
-            *mo_entity = Some(MouseOverEntity(entity));
+            if let Some(previous_entity) = &*mo_entity {
+                if previous_entity.0 != entity {
+                    *mo_entity = Some(MouseOverEntity(entity));
+                }
+            } else {
+                *mo_entity = Some(MouseOverEntity(entity));
+            }
             return;
         }
     }
