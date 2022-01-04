@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 
-use crate::prelude::Player;
+use crate::{
+    input::WorldCursor,
+    prelude::{Player, Weapon},
+};
 
 pub struct Speed(pub f32);
 
@@ -57,4 +60,50 @@ pub enum Axis {
 pub enum Direction {
     Positive,
     Negative,
+}
+
+pub fn player_face_cursor(
+    mut query: Query<(&mut Sprite, &Transform), With<Player>>,
+    world_cursor: Res<WorldCursor>,
+) {
+    if world_cursor.is_changed() {
+        let (mut sprite, transform) = query.single_mut().expect("None found");
+        // let mut player_transform = query.single_mut().expect("No player in game");
+        // let direction_vector = *world_cursor.position() - player_transform.translation.truncate();
+        // player_transform.rotation = Quat::from_rotation_z(-direction_vector.angle_between(Vec2::X));
+        let direction_vector = *world_cursor.position() - transform.translation.truncate();
+        if direction_vector.x > 0.0 {
+            sprite.flip_x = false;
+        } else {
+            sprite.flip_x = true;
+        }
+    }
+}
+
+pub fn update_weapon(
+    mut query: QuerySet<(
+        Query<(&mut Sprite, &mut Transform), With<Weapon>>,
+        Query<&Transform, With<Player>>,
+    )>,
+    world_cursor: Res<WorldCursor>,
+) {
+    let player_position = { query.q1().single().expect("No player found").translation };
+
+    // Update weapon position
+    let (mut weapon_sprite, mut weapon_transform) =
+        query.q0_mut().single_mut().expect("No weapon found");
+
+    weapon_transform.translation = player_position;
+    if world_cursor.is_changed() {
+        let direction_vector = *world_cursor.position() - player_position.truncate();
+        if direction_vector.x > 0.0 {
+            weapon_sprite.flip_y = false;
+            weapon_transform.rotation =
+                Quat::from_rotation_z(-direction_vector.angle_between(Vec2::X));
+        } else {
+            weapon_sprite.flip_y = true;
+            weapon_transform.rotation =
+                Quat::from_rotation_z(-direction_vector.angle_between(Vec2::X));
+        }
+    }
 }

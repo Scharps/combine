@@ -102,3 +102,12 @@ impl WorldCursor {
         &self.0
     }
 }
+
+pub struct WorldCursorPlugin;
+
+impl Plugin for WorldCursorPlugin {
+    fn build(&self, app: &mut AppBuilder) {
+        app.insert_resource(WorldCursor::default())
+            .add_system(update_world_cursor.system());
+    }
+}
