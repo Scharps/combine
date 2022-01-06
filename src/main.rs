@@ -25,7 +25,7 @@ fn main() {
         .add_system(camera::loose_camera.system().after(Systems::Movement))
         .add_plugin(WorldCursorPlugin)
         .add_plugin(MouseOverPlugin)
-        .add_system(update_weapon.system().after(Systems::Movement))
+        //.add_system(update_weapon.system().after(Systems::Movement))
         .run();
 }
 

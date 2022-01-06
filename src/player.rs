@@ -27,25 +27,24 @@ impl Plugin for PlayerPlugin {
                 SystemSet::on_update(AppState::LoadResources).with_system(check_textures.system()),
             )
             .add_system_set(
-                SystemSet::after(
-                    SystemSet::on_enter(AppState::Finished)
-                        .with_system(set_up_player_assets.system()),
-                    Systems::Movement,
-                )
-                .with_system(
+                SystemSet::on_enter(AppState::Finished)
+                    .with_system(set_up_player_assets.system())
+                    .before(Systems::Movement),
+            )
+            .add_system_set(
+                SystemSet::on_update(AppState::Finished).with_system(
                     player_movement
                         .system()
                         .after(Systems::Input)
                         .label(Systems::Movement),
                 ),
             )
-            .add_system(player_input_capture.system().label(Systems::Input))
-            .add_system(player_face_cursor.system());
+            .add_system(player_input_capture.system().label(Systems::Input));
+        //.add_system(player_face_cursor.system().label(Systems::Movement));
     }
 }
 
 fn set_up_player_assets(
-    mut materials: ResMut<Assets<ColorMaterial>>,
     sprite_handles: Res<SpriteHandles>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     asset_server: Res<AssetServer>,
@@ -88,7 +87,7 @@ fn set_up_player_assets(
             texture_atlas: atlas_handle,
             ..Default::default()
         })
-        .insert(Player {})
+        .insert(Player)
         .insert(Speed(500.0))
         .insert(CameraTarget)
         .insert(Collider::Rectangle(Vec2::new(32.0, 32.0)))
@@ -96,19 +95,6 @@ fn set_up_player_assets(
         .insert(animation::Animation::Walking(AnimationState::new(
             sprite_indexes,
         )));
-}
-
-fn set_up_player(mut commands: Commands) {
-
-    // commands
-    //     .spawn()
-    //     .insert_bundle(SpriteBundle {
-    //         material: materials.add(weapon.into()),
-    //         transform: Transform::from_xyz(0.0, 0.0, 1.0),
-    //         sprite: Sprite::new(Vec2::new(150.0, 150.0)),
-    //         ..Default::default()
-    //     })
-    //     .insert(Weapon);
 }
 
 #[derive(Default)]

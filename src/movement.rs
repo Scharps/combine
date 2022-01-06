@@ -63,14 +63,11 @@ pub enum Direction {
 }
 
 pub fn player_face_cursor(
-    mut query: Query<(&mut Sprite, &Transform), With<Player>>,
+    mut query: Query<(&mut TextureAtlasSprite, &Transform), With<Player>>,
     world_cursor: Res<WorldCursor>,
 ) {
     if world_cursor.is_changed() {
-        let (mut sprite, transform) = query.single_mut().expect("None found");
-        // let mut player_transform = query.single_mut().expect("No player in game");
-        // let direction_vector = *world_cursor.position() - player_transform.translation.truncate();
-        // player_transform.rotation = Quat::from_rotation_z(-direction_vector.angle_between(Vec2::X));
+        let (mut sprite, transform) = query.single_mut().expect("No player with sprite found");
         let direction_vector = *world_cursor.position() - transform.translation.truncate();
         if direction_vector.x > 0.0 {
             sprite.flip_x = false;
