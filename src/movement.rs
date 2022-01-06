@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     input::WorldCursor,
-    prelude::{Player, Weapon},
+    player::{Player, Weapon},
 };
 
 pub struct Speed(pub f32);
