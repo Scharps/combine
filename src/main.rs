@@ -11,7 +11,6 @@ use camera::{CameraTargetEvent, MainCamera};
 use collision::Collider;
 use input::WorldCursorPlugin;
 use interaction::{MouseOver, MouseOverPlugin};
-use movement::update_weapon;
 use player::PlayerPlugin;
 use prelude::Systems;
 

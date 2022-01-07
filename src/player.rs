@@ -11,7 +11,10 @@ use crate::{
 };
 
 pub struct Player;
-pub struct Weapon;
+pub struct Weapon {
+    pub sprite: TextureAtlasSprite,
+    pub offset: (f32, f32),
+}
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
@@ -32,15 +35,22 @@ impl Plugin for PlayerPlugin {
                     .before(Systems::Movement),
             )
             .add_system_set(
-                SystemSet::on_update(AppState::Finished).with_system(
-                    player_movement
-                        .system()
-                        .after(Systems::Input)
-                        .label(Systems::Movement),
-                ),
+                SystemSet::on_update(AppState::Finished)
+                    .with_system(
+                        player_movement
+                            .system()
+                            .after(Systems::Input)
+                            .label(Systems::Movement),
+                    )
+                    .with_system(
+                        player_face_cursor
+                            .system()
+                            .after(Systems::Input)
+                            .label(Systems::Movement),
+                    )
+                    .with_system(animation::animation.system().after(Systems::Movement)),
             )
             .add_system(player_input_capture.system().label(Systems::Input));
-        //.add_system(player_face_cursor.system().label(Systems::Movement));
     }
 }
 
@@ -51,8 +61,6 @@ fn set_up_player_assets(
     mut textures: ResMut<Assets<Texture>>,
     mut commands: Commands,
 ) {
-    // let weapon = asset_server.load("textures/sprites/weapons/shooty.png");
-
     let mut texture_atlas_builder = TextureAtlasBuilder::default();
     for handle in sprite_handles.handles.iter() {
         let texture = textures.get(handle).unwrap();
@@ -60,12 +68,12 @@ fn set_up_player_assets(
     }
 
     let texture_atlas = texture_atlas_builder.finish(&mut textures).unwrap();
-    let run1_handle = asset_server.get_handle("textures/sprites/chars/player/run1.png");
-    let run2_handle = asset_server.get_handle("textures/sprites/chars/player/run2.png");
-    let run3_handle = asset_server.get_handle("textures/sprites/chars/player/run3.png");
-    let run4_handle = asset_server.get_handle("textures/sprites/chars/player/run4.png");
-    let run5_handle = asset_server.get_handle("textures/sprites/chars/player/run5.png");
-    let run6_handle = asset_server.get_handle("textures/sprites/chars/player/run6.png");
+    let run1_handle = asset_server.get_handle("textures/sprites/chars/player/running/run1.png");
+    let run2_handle = asset_server.get_handle("textures/sprites/chars/player/running/run2.png");
+    let run3_handle = asset_server.get_handle("textures/sprites/chars/player/running/run3.png");
+    let run4_handle = asset_server.get_handle("textures/sprites/chars/player/running/run4.png");
+    let run5_handle = asset_server.get_handle("textures/sprites/chars/player/running/run5.png");
+    let run6_handle = asset_server.get_handle("textures/sprites/chars/player/running/run6.png");
     let run1_index = texture_atlas.get_texture_index(&run1_handle).unwrap();
     let run2_index = texture_atlas.get_texture_index(&run2_handle).unwrap();
     let run3_index = texture_atlas.get_texture_index(&run3_handle).unwrap();
@@ -105,13 +113,12 @@ struct SpriteHandles {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 enum AppState {
     LoadResources,
-    CreateEntities,
     Finished,
 }
 
 fn load_textures(mut sprite_handles: ResMut<SpriteHandles>, asset_server: Res<AssetServer>) {
     sprite_handles.handles = asset_server
-        .load_folder("textures/sprites")
+        .load_folder("textures/sprites/chars/player")
         .expect("Unable to load sprite folder");
 }
 
