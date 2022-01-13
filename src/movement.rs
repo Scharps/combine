@@ -5,6 +5,7 @@ use crate::{
     player::{Player, Weapon},
 };
 
+#[derive(Component)]
 pub struct Speed(pub f32);
 
 #[derive(Clone, Copy)]
@@ -24,7 +25,7 @@ pub fn player_movement(
     mut event_reader: EventReader<PlayerMovementEvent>,
     mut query: Query<(&mut Transform, &Speed), With<Player>>,
 ) {
-    let (mut player_transform, speed) = query.single_mut().expect("There is no player");
+    let (mut player_transform, speed) = query.single_mut();
     let mut v = Vec3::default();
     for movement_event in event_reader.iter() {
         match movement_event.0.axis {
@@ -67,7 +68,7 @@ pub fn player_face_cursor(
     world_cursor: Res<WorldCursor>,
 ) {
     if world_cursor.is_changed() {
-        let (mut sprite, transform) = query.single_mut().expect("No player with sprite found");
+        let (mut sprite, transform) = query.single_mut();
         let direction_vector = *world_cursor.position() - transform.translation.truncate();
         if direction_vector.x > 0.0 {
             sprite.flip_x = false;

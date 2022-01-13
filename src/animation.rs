@@ -1,6 +1,6 @@
 use bevy::{
     core::Time,
-    prelude::{Query, Res},
+    prelude::{Component, Query, Res},
     sprite::TextureAtlasSprite,
 };
 
@@ -8,6 +8,7 @@ use crate::movement::Direction;
 
 pub const MAX_FRAME_DURATION: f32 = 0.08;
 
+#[derive(Component)]
 pub enum Animation {
     Walking(AnimationState),
     Standing(AnimationState),
@@ -52,7 +53,7 @@ pub fn animation(time: Res<Time>, mut query: Query<(&mut Animation, &mut Texture
             Animation::Walking(animation_state) => {
                 animation_state.duration_on_frame += time.delta_seconds();
                 if animation_state.duration_on_frame >= MAX_FRAME_DURATION {
-                    sprite.index = animation_state.increment_animation() as u32;
+                    sprite.index = animation_state.increment_animation();
                 }
             }
             Animation::Standing(animation_state) => todo!(),

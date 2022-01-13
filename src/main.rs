@@ -15,7 +15,7 @@ use player::PlayerPlugin;
 use prelude::Systems;
 
 fn main() {
-    App::build()
+    App::new()
         .add_startup_system(startup.system())
         .add_startup_system(add_main_camera.system())
         .add_plugins(DefaultPlugins)
@@ -30,19 +30,17 @@ fn main() {
 
 fn startup(
     mut commands: Commands,
-    mut materials: ResMut<Assets<ColorMaterial>>,
     asset_server: Res<AssetServer>,
     texture_atlases: Res<Assets<TextureAtlas>>,
 ) {
-    let sprite = asset_server.load("textures/sprites/chars/enemies/hogger.png");
+    let sprite: Handle<Image> = asset_server.load("textures/sprites/chars/enemies/hogger.png");
 
     // Other entities
     commands
         .spawn()
         .insert_bundle(SpriteBundle {
-            material: materials.add(sprite.clone().into()),
+            texture: sprite.clone(),
             transform: Transform::from_xyz(0.0, 0.0, 0.0),
-            sprite: Sprite::new(Vec2::new(150.0, 150.0)),
             ..Default::default()
         })
         .insert(Collider::Rectangle(Vec2::new(150.0, 150.0)))
@@ -50,9 +48,8 @@ fn startup(
     commands
         .spawn()
         .insert_bundle(SpriteBundle {
-            material: materials.add(sprite.into()),
+            texture: sprite,
             transform: Transform::from_xyz(200.0, 0.0, 0.0),
-            sprite: Sprite::new(Vec2::new(150.0, 150.0)),
             ..Default::default()
         })
         .insert(Collider::Rectangle(Vec2::new(150.0, 150.0)))

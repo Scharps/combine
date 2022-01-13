@@ -1,5 +1,6 @@
-use bevy::math::Vec2;
+use bevy::{math::Vec2, prelude::Component};
 
+#[derive(Component)]
 pub enum Collider {
     Rectangle(Vec2),
     Circle(f32),

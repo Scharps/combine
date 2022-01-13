@@ -10,6 +10,7 @@ use crate::{
     prelude::Systems,
 };
 
+#[derive(Component)]
 pub struct Player;
 pub struct Weapon {
     pub sprite: TextureAtlasSprite,
@@ -18,7 +19,7 @@ pub struct Weapon {
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
-    fn build(&self, app: &mut bevy::prelude::AppBuilder) {
+    fn build(&self, app: &mut bevy::prelude::App) {
         app.insert_resource(Keybinds::default())
             .init_resource::<SpriteHandles>()
             .add_event::<PlayerMovementEvent>()
@@ -58,13 +59,13 @@ fn set_up_player_assets(
     sprite_handles: Res<SpriteHandles>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     asset_server: Res<AssetServer>,
-    mut textures: ResMut<Assets<Texture>>,
+    mut textures: ResMut<Assets<Image>>,
     mut commands: Commands,
 ) {
     let mut texture_atlas_builder = TextureAtlasBuilder::default();
     for handle in sprite_handles.handles.iter() {
         let texture = textures.get(handle).unwrap();
-        texture_atlas_builder.add_texture(handle.clone_weak().typed::<Texture>(), texture);
+        texture_atlas_builder.add_texture(handle.clone_weak().typed::<Image>(), texture);
     }
 
     let texture_atlas = texture_atlas_builder.finish(&mut textures).unwrap();
@@ -91,7 +92,7 @@ fn set_up_player_assets(
         .spawn()
         .insert_bundle(SpriteSheetBundle {
             transform: Transform::from_xyz(0.0, 0.0, 1.0),
-            sprite: TextureAtlasSprite::new(run2_index as u32),
+            sprite: TextureAtlasSprite::new(run2_index),
             texture_atlas: atlas_handle,
             ..Default::default()
         })
