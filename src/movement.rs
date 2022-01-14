@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
+    animation::AnimationState,
     input::WorldCursor,
     player::{Player, Weapon},
 };
@@ -23,15 +24,37 @@ impl MovementEvent {
 pub fn player_movement(
     time: Res<Time>,
     mut event_reader: EventReader<PlayerMovementEvent>,
-    mut query: Query<(&mut Transform, &Speed), With<Player>>,
+    mut query: Query<
+        (
+            &mut Transform,
+            &Speed,
+            &mut AnimationState,
+            &TextureAtlasSprite,
+        ),
+        With<Player>,
+    >,
 ) {
-    let (mut player_transform, speed) = query.single_mut();
+    let (mut player_transform, speed, mut animation_state, sprite) = query.single_mut();
     let mut v = Vec3::default();
     for movement_event in event_reader.iter() {
         match movement_event.0.axis {
             Axis::X => match movement_event.0.direction {
-                Direction::Positive => v.x += 1.0,
-                Direction::Negative => v.x -= 1.0,
+                Direction::Positive => {
+                    v.x += 1.0;
+                    if sprite.flip_y {
+                        animation_state.reverse = true;
+                    } else {
+                        animation_state.reverse = false;
+                    }
+                }
+                Direction::Negative => {
+                    v.x -= 1.0;
+                    if sprite.flip_y {
+                        animation_state.reverse = false;
+                    } else {
+                        animation_state.reverse = true;
+                    }
+                }
             },
             Axis::Y => match movement_event.0.direction {
                 Direction::Positive => v.y += 1.0,

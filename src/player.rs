@@ -1,7 +1,7 @@
 use bevy::{asset::LoadState, prelude::*, sprite::TextureAtlasBuilder};
 
 use crate::{
-    animation::{self, AnimationState},
+    animation::{self, Animation, AnimationState},
     camera::CameraTarget,
     collision::Collider,
     input::{player_input_capture, Keybinds},
@@ -9,6 +9,8 @@ use crate::{
     movement::{player_face_cursor, player_movement, PlayerMovementEvent, Speed},
     prelude::Systems,
 };
+
+pub type RunningAnimation = Animation;
 
 #[derive(Component)]
 pub struct Player;
@@ -69,22 +71,16 @@ fn set_up_player_assets(
     }
 
     let texture_atlas = texture_atlas_builder.finish(&mut textures).unwrap();
-    let run1_handle = asset_server.get_handle("textures/sprites/chars/player/running/run1.png");
-    let run2_handle = asset_server.get_handle("textures/sprites/chars/player/running/run2.png");
-    let run3_handle = asset_server.get_handle("textures/sprites/chars/player/running/run3.png");
-    let run4_handle = asset_server.get_handle("textures/sprites/chars/player/running/run4.png");
-    let run5_handle = asset_server.get_handle("textures/sprites/chars/player/running/run5.png");
-    let run6_handle = asset_server.get_handle("textures/sprites/chars/player/running/run6.png");
-    let run1_index = texture_atlas.get_texture_index(&run1_handle).unwrap();
-    let run2_index = texture_atlas.get_texture_index(&run2_handle).unwrap();
-    let run3_index = texture_atlas.get_texture_index(&run3_handle).unwrap();
-    let run4_index = texture_atlas.get_texture_index(&run4_handle).unwrap();
-    let run5_index = texture_atlas.get_texture_index(&run5_handle).unwrap();
-    let run6_index = texture_atlas.get_texture_index(&run6_handle).unwrap();
 
-    let sprite_indexes = vec![
-        run1_index, run2_index, run3_index, run4_index, run5_index, run6_index,
-    ];
+    let sprite_indexes: Animation = (1..=6)
+        .map(|n| {
+            asset_server.get_handle(format!(
+                "textures/sprites/chars/player/running/run{}.png",
+                n
+            ))
+        })
+        .map(|h| texture_atlas.get_texture_index(&h).unwrap())
+        .collect();
 
     let atlas_handle = texture_atlases.add(texture_atlas);
 
@@ -92,7 +88,7 @@ fn set_up_player_assets(
         .spawn()
         .insert_bundle(SpriteSheetBundle {
             transform: Transform::from_xyz(0.0, 0.0, 1.0),
-            sprite: TextureAtlasSprite::new(run2_index),
+            sprite: TextureAtlasSprite::new(sprite_indexes[1]),
             texture_atlas: atlas_handle,
             ..Default::default()
         })
@@ -101,9 +97,7 @@ fn set_up_player_assets(
         .insert(CameraTarget)
         .insert(Collider::Rectangle(Vec2::new(32.0, 32.0)))
         .insert(MouseOver("Player".to_string()))
-        .insert(animation::Animation::Walking(AnimationState::new(
-            sprite_indexes,
-        )));
+        .insert(AnimationState::new(sprite_indexes));
 }
 
 #[derive(Default)]
@@ -119,7 +113,7 @@ enum AppState {
 
 fn load_textures(mut sprite_handles: ResMut<SpriteHandles>, asset_server: Res<AssetServer>) {
     sprite_handles.handles = asset_server
-        .load_folder("textures/sprites/chars/player")
+        .load_folder("textures/sprites/chars/player/running")
         .expect("Unable to load sprite folder");
 }
 

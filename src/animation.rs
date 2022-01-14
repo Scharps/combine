@@ -4,38 +4,35 @@ use bevy::{
     sprite::TextureAtlasSprite,
 };
 
-use crate::movement::Direction;
+pub const MAX_FRAME_DURATION: f32 = 0.5;
 
-pub const MAX_FRAME_DURATION: f32 = 0.08;
+pub type Animation = Vec<usize>;
 
 #[derive(Component)]
-pub enum Animation {
-    Walking(AnimationState),
-    Standing(AnimationState),
-}
-
 pub struct AnimationState {
     pub duration_on_frame: f32,
+    pub reverse: bool,
     sprite_index: usize,
-    sprite_indexes: Vec<usize>,
+    sprite_indexes: Animation,
 }
 
 impl AnimationState {
-    pub fn new(sprite_indexes: Vec<usize>) -> Self {
+    pub fn new(sprite_indexes: Animation) -> Self {
         AnimationState {
             duration_on_frame: 0.0,
+            reverse: false,
             sprite_index: 0,
             sprite_indexes,
         }
     }
 
-    pub fn increment_animation(&mut self) -> usize {
+    fn increment_animation(&mut self) -> usize {
         self.sprite_index = self.sprite_index.overflowing_add(1).0;
         self.duration_on_frame = 0.0;
         self.sprite_index % self.sprite_indexes.len()
     }
 
-    pub fn decrement_animation(&mut self) -> usize {
+    fn decrement_animation(&mut self) -> usize {
         self.sprite_index = self.sprite_index.overflowing_sub(1).0;
         self.duration_on_frame = 0.0;
         self.sprite_index % self.sprite_indexes.len()
@@ -45,18 +42,29 @@ impl AnimationState {
         self.sprite_index = 0;
         self.duration_on_frame = 0.0;
     }
+
+    pub fn set_sprite_indexes(&mut self, sprite_indexes: Vec<usize>) {
+        self.sprite_indexes = sprite_indexes;
+    }
 }
 
-pub fn animation(time: Res<Time>, mut query: Query<(&mut Animation, &mut TextureAtlasSprite)>) {
+pub fn animation(
+    time: Res<Time>,
+    mut query: Query<(&mut AnimationState, &mut TextureAtlasSprite)>,
+) {
     for (mut animation, mut sprite) in query.iter_mut() {
-        match &mut *animation {
-            Animation::Walking(animation_state) => {
-                animation_state.duration_on_frame += time.delta_seconds();
-                if animation_state.duration_on_frame >= MAX_FRAME_DURATION {
-                    sprite.index = animation_state.increment_animation();
+        animation.duration_on_frame += time.delta_seconds();
+        if animation.duration_on_frame >= MAX_FRAME_DURATION {
+            match animation.reverse {
+                true => {
+                    let idx = animation.decrement_animation();
+                    sprite.index = animation.sprite_indexes[idx];
+                }
+                false => {
+                    let idx = animation.increment_animation();
+                    sprite.index = animation.sprite_indexes[idx];
                 }
             }
-            Animation::Standing(animation_state) => todo!(),
         }
     }
 }
