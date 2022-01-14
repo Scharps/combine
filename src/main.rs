@@ -1,66 +1,64 @@
+mod animation;
 mod camera;
 mod collision;
 mod input;
 mod interaction;
 mod movement;
+mod player;
 mod prelude;
 use bevy::prelude::*;
-use camera::{CameraTarget, CameraTargetEvent, MainCamera};
+use camera::{CameraTargetEvent, MainCamera};
 use collision::Collider;
-use input::{update_world_cursor, WorldCursor};
+use input::WorldCursorPlugin;
 use interaction::{MouseOver, MouseOverPlugin};
-use movement::Speed;
-use prelude::{Player, PlayerPlugin};
+use player::PlayerPlugin;
+use prelude::Systems;
 
 fn main() {
-    App::build()
+    App::new()
         .add_startup_system(startup.system())
+        .add_startup_system(add_main_camera.system())
         .add_plugins(DefaultPlugins)
         .add_plugin(PlayerPlugin)
-        .add_startup_system(set_up_player.system())
         .add_event::<CameraTargetEvent>()
-        .add_system(camera::loose_camera.system().after("movement"))
-        .add_system(update_world_cursor.system())
-        .insert_resource(WorldCursor::default())
+        .add_system(camera::loose_camera.system().after(Systems::Movement))
+        .add_plugin(WorldCursorPlugin)
         .add_plugin(MouseOverPlugin)
+        //.add_system(update_weapon.system().after(Systems::Movement))
         .run();
 }
 
-fn set_up_player(mut commands: Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
-    commands
-        .spawn()
-        .insert_bundle(SpriteBundle {
-            material: materials.add(Color::rgb(0.5, 0.5, 1.0).into()),
-            transform: Transform::from_xyz(0.0, -215.0, 0.0),
-            sprite: Sprite::new(Vec2::new(32.0, 32.0)),
-            ..Default::default()
-        })
-        .insert(Transform::default())
-        .insert(Player {})
-        .insert(Speed(500.0))
-        .insert(CameraTarget)
-        .insert(Collider::Rectangle(Vec2::new(32.0, 32.0)))
-        .insert(MouseOver("Player".to_string()));
-}
+fn startup(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    texture_atlases: Res<Assets<TextureAtlas>>,
+) {
+    let sprite: Handle<Image> = asset_server.load("textures/sprites/chars/enemies/hogger.png");
 
-fn startup(mut commands: Commands, mut materials: ResMut<Assets<ColorMaterial>>) {
-    commands.spawn().insert_bundle(SpriteBundle {
-        material: materials.add(Color::rgb(1.0, 0.0, 0.0).into()),
-        transform: Transform::from_xyz(0.0, 0.0, 0.0),
-        sprite: Sprite::new(Vec2::new(32.0, 32.0)),
-        ..Default::default()
-    });
+    // Other entities
     commands
         .spawn()
         .insert_bundle(SpriteBundle {
-            material: materials.add(Color::rgb(1.0, 0.0, 0.0).into()),
-            transform: Transform::from_xyz(200.0, 0.0, 0.0),
-            sprite: Sprite::new(Vec2::new(32.0, 32.0)),
+            texture: sprite.clone(),
+            transform: Transform::from_xyz(0.0, 0.0, 0.0),
             ..Default::default()
         })
-        .insert(Collider::Rectangle(Vec2::new(32.0, 32.0)))
+        .insert(Collider::Rectangle(Vec2::new(150.0, 150.0)))
+        .insert(MouseOver("Other".to_string()));
+    commands
+        .spawn()
+        .insert_bundle(SpriteBundle {
+            texture: sprite,
+            transform: Transform::from_xyz(200.0, 0.0, 0.0),
+            ..Default::default()
+        })
+        .insert(Collider::Rectangle(Vec2::new(150.0, 150.0)))
         .insert(MouseOver("Other".to_string()));
 
+    // Camera
+}
+
+fn add_main_camera(mut commands: Commands) {
     commands
         .spawn()
         .insert_bundle(OrthographicCameraBundle::new_2d())

@@ -1,19 +1,7 @@
-use bevy::prelude::{IntoSystem, ParallelSystemDescriptorCoercion, Plugin};
+use bevy::prelude::SystemLabel;
 
-use crate::{
-    input::{player_input_capture, Keybinds},
-    movement::{player_movement, PlayerMovementEvent},
-};
-
-pub struct Player;
-
-pub struct PlayerPlugin;
-
-impl Plugin for PlayerPlugin {
-    fn build(&self, app: &mut bevy::prelude::AppBuilder) {
-        app.insert_resource(Keybinds::default())
-            .add_event::<PlayerMovementEvent>()
-            .add_system(player_input_capture.system().label("input"))
-            .add_system(player_movement.system().after("input").label("movement"));
-    }
+#[derive(Debug, Clone, PartialEq, Eq, Hash, SystemLabel)]
+pub enum Systems {
+    Input,
+    Movement,
 }

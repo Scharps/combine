@@ -1,17 +1,18 @@
-use bevy::prelude::{Entity, IntoSystem, Plugin, Query, Res, ResMut, Transform, With};
+use bevy::prelude::{Component, Entity, IntoSystem, Plugin, Query, Res, ResMut, Transform, With};
 
 use crate::{collision::Collider, input::WorldCursor};
 
 pub struct MouseOverPlugin;
 
 impl Plugin for MouseOverPlugin {
-    fn build(&self, app: &mut bevy::prelude::AppBuilder) {
+    fn build(&self, app: &mut bevy::prelude::App) {
         app.insert_resource::<Option<MouseOverEntity>>(None)
             .add_system(set_mouse_over.system())
             .add_system(print_mouse_over.system());
     }
 }
 
+#[derive(Component)]
 pub struct MouseOver(pub String);
 
 pub struct MouseOverEntity(Entity);

@@ -69,7 +69,7 @@ pub fn update_world_cursor(
     windows: Res<Windows>,
     query: Query<&Transform, With<Camera>>,
 ) {
-    let main_camera_transform = query.single().expect("No camera found");
+    let main_camera_transform = query.single();
 
     if let Some(window) = windows.get_primary() {
         if let Some(position) = window.cursor_position() {
@@ -100,5 +100,14 @@ impl Default for WorldCursor {
 impl WorldCursor {
     pub fn position(&self) -> &Vec2 {
         &self.0
+    }
+}
+
+pub struct WorldCursorPlugin;
+
+impl Plugin for WorldCursorPlugin {
+    fn build(&self, app: &mut App) {
+        app.insert_resource(WorldCursor::default())
+            .add_system(update_world_cursor.system());
     }
 }
